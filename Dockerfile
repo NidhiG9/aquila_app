@@ -1,3 +1,4 @@
+FROM almalinux:latest
 WORKDIR /src
 EXPOSE 3010
 COPY . /src
