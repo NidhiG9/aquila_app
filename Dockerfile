@@ -1,32 +1,16 @@
-FROM ubuntu:latest
-
-# Set the working directory
+FROM almalinux:latest
 WORKDIR /src
-
-# Expose port 3010
 EXPOSE 3010
+COPY . /src
 
-# Copy the application source code and package files
-COPY . .
-COPY package*.json ./
+RUN dnf update -y
+RUN dnf module install nodejs:18 -y
 
-# Install necessary packages and dependencies
-RUN apt update -y && \
-    apt install -y curl wget ca-certificates && \
-    curl -fsSL https://fnm.vercel.app/install | bash && \
-    source ~/.bashrc && \
-    fnm use --install-if-missing 20 && \
-    apt install -y wkhtmltopdf && \
-    npm install -g yarn
+RUN yum -y install wget
+RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos8.x86_64.rpm
+RUN dnf install ./wkhtmltox-0.12.6-1.centos8.x86_64.rpm -y
 
-# Install application dependencies
-RUN npm install --global yarn
+RUN npm install -g yarn
 RUN yarn install
-RUN yarn global add pm2
-RUN install libvips-dev 
-RUN install wkhtmltopdf
-RUN yarn add sharp 
 
-
-# Start the application
-CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+CMD ["npm", "start"]
